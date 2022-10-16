@@ -4,7 +4,8 @@
   "description": "��_�n0�0�0�0f[�(u�0�0�0�\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gettime": "node now.js"
   },
   "repository": {
     "type": "git",
