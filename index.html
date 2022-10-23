@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+      //カウンター初期値セット
+      var counter = 0;
+      function countUp() {
+        // カウンターを1UPする
+        counter++;
+        // テキストボックスの値を更新する
+        document.getElementById("counterBox").value = counter;
+      }
+    </script>
+  </head>
+  <body>
+    <p>Webアプリ開発 1-1</p>
+    <p>カウンター <input type="text" id="counterBox" value=0 size="10" style="text-align:right"></p>
+    <p><input type="button" value="カウントアップ" onclick="countUp()"></p>
+  </body>
+</html>
