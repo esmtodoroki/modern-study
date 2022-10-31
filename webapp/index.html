@@ -2,12 +2,59 @@
 <html>
   <head>
     <base target="_top">
+    <style>
+      #title {
+        color: white;
+        font-size: 20px;
+        text-align: center;
+        width: 250px;
+        height: 30px;
+        margin: auto;
+        background-color: darkgreen;
+      }
+      #body {
+        text-align: center;
+        font-weight: bold;
+      }
+      #counterBox {
+        width: 30px;
+        text-align: right;
+      }
+      .button {
+        text-align:center;
+      }
+      #button1 {
+        color:black;
+        text-align:center;
+        width: 150px;
+        border-radius: 10px;
+        border-width: 1px;
+      }
+      #button2 {
+        text-align:center;
+        width: 150px;
+        border-radius: 10px;
+        border-width: 1px;
+        color:red;
+      }
+    </style>
   </head>
   <body>
-    <p>Webアプリ開発 1-2</p>
-    <p>カウンター <input type="text" id="counterBox" value=0 size="10" style="text-align:right"></p>
-    <p><input type="button" value="カウントアップ" onclick="countUp()"></p>
-    <p><input type="button" value="リセット" onclick="countReset()"></p>
+    <div id="title">
+      シンプルカウンター
+    </div>
+    <br>
+    <div id="body">
+      カウンター <input type="text" id="counterBox" value=0>
+    </div>
+    <br>
+    <div class="button">
+      <input type="button" id="button1" value="カウントアップ" onclick="countUp()">
+    </div>
+    <br>
+    <div class="button">
+      <input type="button" id="button2" value="リセット" onclick="countReset()">
+    </div>
     <script>
       //カウンター初期値セット
       var counter = 0;
