@@ -17,25 +17,39 @@
         font-weight: bold;
       }
       #counterBox {
-        width: 30px;
+        font-size: 20px;
+        color: gold;
         text-align: right;
+        background-color: black;
+        width: 80px;
       }
       .button {
         text-align:center;
       }
-      #button1 {
+      #countUpButton {
+        font-size: 14px;
         color:black;
         text-align:center;
-        width: 150px;
+        width: 120px;
         border-radius: 10px;
         border-width: 1px;
       }
-      #button2 {
+      #resetButton {
+        font-size: 14px;
+        color:red;
         text-align:center;
-        width: 150px;
+        width: 120px;
         border-radius: 10px;
         border-width: 1px;
-        color:red;
+        border-color: red;
+      }
+      #saveButton {
+        font-size: 16px;
+        color:white;
+        background-color: darkblue;
+        text-align:center;
+        width: 120px;
+        border:none;
       }
     </style>
   </head>
@@ -49,11 +63,12 @@
     </div>
     <br>
     <div class="button">
-      <input type="button" id="button1" value="カウントアップ" onclick="countUp()">
+      <input type="button" id="countUpButton" value="カウントアップ" onclick="countUp()">
+      <input type="button" id="resetButton" value="リセット" onclick="countReset()">
     </div>
     <br>
     <div class="button">
-      <input type="button" id="button2" value="リセット" onclick="countReset()">
+      <input type="button" id="saveButton" value="カウント保存" onclick="saveCount()">
     </div>
     <script>
       //カウンター初期値セット
@@ -69,6 +84,10 @@
         counter = 0;
         // テキストボックスの値を更新する
         document.getElementById("counterBox").value = counter;
+      }
+      function saveCount() {
+        // カウンターをスプレッドシートに保存する
+        google.script.run.setSheetData(counter);
       }
     </script>
   </body>
