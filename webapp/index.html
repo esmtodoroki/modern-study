@@ -46,7 +46,7 @@
       #saveButton {
         font-size: 16px;
         color:white;
-        background-color: darkblue;
+        background-color: darkgreen;
         text-align:center;
         width: 120px;
         border:none;
@@ -59,7 +59,7 @@
     </div>
     <br>
     <div id="body">
-      カウンター <input type="text" id="counterBox" value=0>
+      カウンター <input type="text" id="counterBox" value=<?= currentCounter ?>>
     </div>
     <br>
     <div class="button">
@@ -71,8 +71,14 @@
       <input type="button" id="saveButton" value="カウント保存" onclick="saveCount()">
     </div>
     <script>
-      //カウンター初期値セット
-      var counter = 0;
+      //グローバル変数宣言
+      var counter;
+      //スプレッドシートからカウンター値を読み込んでセット
+      function loadCounter(result) {
+      counter = result;
+      }
+      google.script.run.withSuccessHandler(loadCounter).getSheetData();
+      //
       function countUp() {
         // カウンターを1UPする
         counter++;
