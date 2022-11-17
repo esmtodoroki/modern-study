@@ -37,35 +37,36 @@
   <body>
     <div id="app">
       <h1>シンプルカウンター</h1>
-      <p>カウンター <input type="text" id="counterBox" value=<?= currentCounter ?>></p>
+      <p>カウンター <input type="text" id="counterBox" v-bind:value="counter"></p>
       <p><button id="countUpButton" v-on:click="countUp">カウントアップ</button>
         <button id="resetButton" v-on:click="resetCounter">リセット</button></p>
       <p><button id="saveButton" v-on:click="saveCounter">カウント保存</button></p>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
     <script>
-      //グローバル変数宣言
-      var counter;
-      //ページロード時にスプレッドシートからカウンター値を読み込んでセット
-      function loadCounter(result) {
-      counter = result;
-      }
-      google.script.run.withSuccessHandler(loadCounter).getSheetData();
       // Vueのインスタンス生成
       var app = new Vue({
         el: '#app' ,
+        data: {
+          counter: 0
+        },
+        created: function() {
+          // ページロード時にスプレッドシートからカウンター値を読み込んでセット
+          google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
+        },
         methods: {
-          countUp() {         // カウンターを1upする
-            counter++;
-            document.getElementById("counterBox").value = counter;
+          loadCounter(result) {    // googleスクリプト用コールバック関数
+            this.counter = result
           },
-          resetCounter() {    // カウンターを0にリセットする
-            counter = 0;
-            document.getElementById("counterBox").value = counter;
+          countUp() {              // カウンターを1upする
+            this.counter++
           },
-          saveCounter() {     // カウンターをスプレッドシートに保存する
-            google.script.run.setSheetData(counter);
-            alert('保存しました');
+          resetCounter() {         // カウンターを0にリセットする
+            this.counter = 0
+          },
+          saveCounter() {          // カウンターをスプレッドシートに保存する
+            google.script.run.setSheetData(this.counter)
+            alert('保存しました')
           }
         }
       })
