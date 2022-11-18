@@ -3,16 +3,7 @@
   <head>
     <base target="_top">
     <style>
-      #title {
-        color: white;
-        font-size: 20px;
-        text-align: center;
-        width: 250px;
-        height: 30px;
-        margin: auto;
-        background-color: darkgreen;
-      }
-      #body {
+      #app {
         text-align: center;
         font-weight: bold;
       }
@@ -23,78 +14,62 @@
         background-color: black;
         width: 80px;
       }
-      .button {
-        text-align:center;
-      }
       #countUpButton {
         font-size: 14px;
         color:black;
         text-align:center;
         width: 120px;
-        border-radius: 10px;
-        border-width: 1px;
       }
       #resetButton {
         font-size: 14px;
         color:red;
         text-align:center;
         width: 120px;
-        border-radius: 10px;
-        border-width: 1px;
-        border-color: red;
       }
       #saveButton {
-        font-size: 16px;
-        color:white;
-        background-color: darkgreen;
+        font-size: 14px;
+        color:darkgreen;
         text-align:center;
         width: 120px;
-        border:none;
       }
     </style>
   </head>
   <body>
-    <div id="title">
-      シンプルカウンター
+    <div id="app">
+      <h1>シンプルカウンター</h1>
+      <p>カウンター <input type="text" id="counterBox" v-bind:value="counter"></p>
+      <p><button id="countUpButton" v-on:click="countUp">カウントアップ</button>
+        <button id="resetButton" v-on:click="resetCounter">リセット</button></p>
+      <p><button id="saveButton" v-on:click="saveCounter">カウント保存</button></p>
     </div>
-    <br>
-    <div id="body">
-      カウンター <input type="text" id="counterBox" value=<?= currentCounter ?>>
-    </div>
-    <br>
-    <div class="button">
-      <input type="button" id="countUpButton" value="カウントアップ" onclick="countUp()">
-      <input type="button" id="resetButton" value="リセット" onclick="countReset()">
-    </div>
-    <br>
-    <div class="button">
-      <input type="button" id="saveButton" value="カウント保存" onclick="saveCount()">
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
     <script>
-      //グローバル変数宣言
-      var counter;
-      //スプレッドシートからカウンター値を読み込んでセット
-      function loadCounter(result) {
-      counter = result;
-      }
-      google.script.run.withSuccessHandler(loadCounter).getSheetData();
-      //
-      function countUp() {
-        // カウンターを1UPする
-        counter++;
-        // テキストボックスの値を更新する
-        document.getElementById("counterBox").value = counter;
-      }
-      function countReset() {
-        // カウンターを0にリセットする
-        counter = 0;
-        // テキストボックスの値を更新する
-        document.getElementById("counterBox").value = counter;
-      }
-      function saveCount() {
-        // カウンターをスプレッドシートに保存する
-        google.script.run.setSheetData(counter);
-      }
+      // Vueのインスタンス生成
+      var app = new Vue({
+        el: '#app' ,
+        data: {
+          counter: 0
+        },
+        created: function() {
+          // ページロード時にスプレッドシートからカウンター値を読み込んでセット
+          google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
+        },
+        methods: {
+          loadCounter(result) {    // googleスクリプト用コールバック関数
+            this.counter = result
+          },
+          countUp() {              // カウンターを1upする
+            this.counter++
+          },
+          resetCounter() {         // カウンターを0にリセットする
+            this.counter = 0
+          },
+          saveCounter() {          // カウンターをスプレッドシートに保存する
+            google.script.run.setSheetData(this.counter)
+            alert('保存しました')
+          }
+        }
+      })
     </script>
   </body>
 </html>
