@@ -2,47 +2,32 @@
 <html>
   <head>
     <base target="_top">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <style>
-      #app {
-        text-align: center;
-        font-weight: bold;
-      }
-      #counterBox {
-        font-size: 20px;
-        color: gold;
-        text-align: right;
-        background-color: black;
-        width: 80px;
-      }
-      #countUpButton {
-        font-size: 14px;
-        color:black;
-        text-align:center;
-        width: 120px;
-      }
-      #resetButton {
-        font-size: 14px;
-        color:red;
-        text-align:center;
-        width: 120px;
-      }
-      #saveButton {
-        font-size: 14px;
-        color:darkgreen;
-        text-align:center;
-        width: 120px;
-      }
     </style>
   </head>
   <body>
     <div id="app">
-      <h1>シンプルカウンター</h1>
-      <p>カウンター <input type="text" id="counterBox" v-bind:value="counter"></p>
-      <p><button id="countUpButton" v-on:click="countUp">カウントアップ</button>
-        <button id="resetButton" v-on:click="resetCounter">リセット</button></p>
-      <p><button id="saveButton" v-on:click="saveCounter">カウント保存</button></p>
+      <v-app>
+        <v-app-bar app color="orange">シンプルカウンター</v-app-bar>
+        <v-main>
+          <v-container>
+            <p><v-text-field readonly="true" prefix="カウンター：　" v-bind:value="counter"></p>
+            <p>
+            <v-btn color="primary" elevation="8" v-on:click="countUp">カウントアップ</v-btn>
+            <v-btn color="warning" elevation="8" v-on:click="resetCounter">リセット</v-btn>
+            </p>
+            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter">カウント保存</v-btn></p>
+          </v-container>
+        </v-main>
+        <v-footer app color="orange">Modern Challnger 2022</v-footer>
+      </v-app>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <script>
       // Vueのインスタンス生成
       var app = new Vue({
@@ -68,7 +53,10 @@
             google.script.run.setSheetData(this.counter)
             alert('保存しました')
           }
-        }
+        },
+        vuetify: new Vuetify({
+          theme: {dark: true},
+        })
       })
     </script>
   </body>
