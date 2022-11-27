@@ -1,0 +1,4 @@
+create table web_counter_esmtodoroki.counter_table (
+    id int(2) primary key comment 'カラムID',
+    counter int(5) unsigned default 0 comment 'カウンター値'
+);
