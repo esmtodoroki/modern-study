@@ -56,3 +56,24 @@ function updateRecord(value) {
   statement.close();
   connection.close();
 }
+
+//カウンター値保存用テーブルのレコード（カウンター値）を取得する
+function readRecord() {
+  var connection = Jdbc.getCloudSqlConnection(URL, USER_NAME, PASSWORD);
+  var statement = connection.createStatement();
+  var results = statement.executeQuery('SELECT counter FROM counter_table WHERE id = 1');
+  results.next();
+  var currentCounter = results.getInt('counter');
+  return currentCounter;
+}
+
+//カウンター値保存用テーブルのレコード数を取得する
+// （初回登録の判定に使用）
+function countRecord() {
+  var connection = Jdbc.getCloudSqlConnection(URL, USER_NAME, PASSWORD);
+  var statement = connection.createStatement();
+  var results = statement.executeQuery('SELECT * FROM counter_table');
+  results.last();
+  var rowNum = results.getRow();
+  return rowNum;
+}
