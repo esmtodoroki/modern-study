@@ -38,7 +38,8 @@ function getSheetData() {
 //カウンター値保存用テーブルにレコードを新規作成する（初回登録）
 function insertNewRecord(value) {
   var connection = Jdbc.getCloudSqlConnection(URL, USER_NAME, PASSWORD);
-  var statement = connection.prepareStatement('INSERT INTO counter_table (id, counter) values (1, ?)');
+  var sql = 'INSERT INTO counter_table (id, counter) values (1, ?)';
+  var statement = connection.prepareStatement(sql);
   statement.setInt(1, value);
   statement.executeUpdate();
   
@@ -49,10 +50,36 @@ function insertNewRecord(value) {
 //カウンター値保存用テーブルのレコードを更新する
 function updateRecord(value) {
   var connection = Jdbc.getCloudSqlConnection(URL, USER_NAME, PASSWORD);
-  var statement = connection.prepareStatement('UPDATE counter_table SET counter=? WHERE id=1');
+  var sql = 'UPDATE counter_table SET counter=? WHERE id=1';
+  var statement = connection.prepareStatement(sql);
   statement.setInt(1, value);
   statement.executeUpdate();
 
   statement.close();
   connection.close();
+}
+
+//テーブルリード用サブ関数
+function readTableSub(sql) {
+  const connection = Jdbc.getCloudSqlConnection(URL, USER_NAME, PASSWORD)
+  return connection.createStatement().executeQuery(sql)
+}
+
+//カウンター値保存用テーブルのレコード（カウンター値）を取得する
+function readCounter() {
+  var sql = 'SELECT * FROM counter_table WHERE id = 1';
+  var results = readTableSub(sql);
+  results.next();
+  var currentCounter = results.getInt('counter');
+  return currentCounter;
+}
+
+//カウンター値保存用テーブルのレコード数を取得する
+// （初回登録の判定に使用）
+function countRecord() {
+  var sql = 'SELECT COUNT(*) cnt FROM counter_table';
+  var results = readTableSub(sql);
+  results.next();
+  var rowCount = results.getInt('cnt');
+  return rowCount;
 }
