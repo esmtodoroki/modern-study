@@ -23,7 +23,7 @@
             <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter">カウント保存</v-btn></p>
           </v-container>
         </v-main>
-        <v-footer app color="orange">Modern Challnger 2022</v-footer>
+        <v-footer app color="orange">Modern Study 2022</v-footer>
       </v-app>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
@@ -33,14 +33,22 @@
       var app = new Vue({
         el: '#app' ,
         data: {
-          counter: 0
+          counter:null ,
+          recordCount:null
         },
         created: function() {
           // ページロード時にスプレッドシートからカウンター値を読み込んでセット
-          google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
+          //google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
+          // ページロード時にテーブル内のレコード数をカウント
+          google.script.run.withSuccessHandler(this.countRecord).countRecord();
+          // ページロード時にテーブルから現在のカウンター値を読み込む
+          google.script.run.withSuccessHandler(this.loadCounter).readCounter();
         },
         methods: {
-          loadCounter(result) {    // googleスクリプト用コールバック関数
+          countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）
+            this.recordCount = result
+          },
+          loadCounter(result) {    // googleスクリプト用コールバック関数（カウンター値読み込み）
             this.counter = result
           },
           countUp() {              // カウンターを1upする
@@ -49,9 +57,15 @@
           resetCounter() {         // カウンターを0にリセットする
             this.counter = 0
           },
-          saveCounter() {          // カウンターをスプレッドシートに保存する
-            google.script.run.setSheetData(this.counter)
-            alert('保存しました')
+          saveCounter() {          // カウンターをテーブルに保存する
+            //google.script.run.setSheetData(this.counter)
+            //テーブルにレコードが存在すれば上書きし、無ければインサートする
+            if (this.recordCount > 0) {
+              google.script.run.updateRecord(this.counter)
+            } else {
+              google.script.run.insertNewRecord(this.counter)
+            };
+            alert('保存しました');
           }
         },
         vuetify: new Vuetify({
