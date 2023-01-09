@@ -15,15 +15,21 @@
         <v-app-bar app color="orange">シンプルカウンター</v-app-bar>
         <v-main>
           <v-container>
-            <p><v-text-field readonly="true" prefix="カウンター：　" v-bind:value="counter"></p>
+            <p><v-text-field prefix="カウンター：　" v-bind:value="counter"></p>
             <p>
             <v-btn color="primary" elevation="8" v-on:click="countUp">カウントアップ</v-btn>
             <v-btn color="warning" elevation="8" v-on:click="resetCounter">リセット</v-btn>
             </p>
-            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter">カウント保存</v-btn></p>
+            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter" @click="overlay = true">カウント保存</v-btn></p>
           </v-container>
         </v-main>
         <v-footer app color="orange">Modern Study 2022</v-footer>
+        <v-overlay :value="overlay">
+          <v-progress-circular
+            indeterminate
+            size="64"
+          ></v-progress-circular>
+        </v-overlay>
       </v-app>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
@@ -34,22 +40,53 @@
         el: '#app' ,
         data: {
           counter:null ,
-          recordCount:null
+          recordCount:null,
+          overlay: false,
         },
         created: function() {
+          this.overlay = true;
           // ページロード時にスプレッドシートからカウンター値を読み込んでセット
           //google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
           // ページロード時にテーブル内のレコード数をカウント
-          google.script.run.withSuccessHandler(this.countRecord).countRecord();
+          //google.script.run.withSuccessHandler(this.countRecord).countRecord();
           // ページロード時にテーブルから現在のカウンター値を読み込む
-          google.script.run.withSuccessHandler(this.loadCounter).readCounter();
+          //google.script.run.withSuccessHandler(this.loadCounter).readCounter();
+          // 開始処理
+          this.start();
         },
         methods: {
-          countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）
+          countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）※未使用
             this.recordCount = result
           },
-          loadCounter(result) {    // googleスクリプト用コールバック関数（カウンター値読み込み）
-            this.counter = result
+          loadCounter(result) {    // googleスクリプト用コールバック関数（カウンター値読み込み）※未使用
+            this.counter = result;
+            this.overlay = false;
+          },
+          gasCountRecord() {       // テーブルのレコード数をカウント
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => resolve(error))
+                .countRecord();
+            });
+          },
+          gasLoadCounter() {       // テーブルのカウンター値を読み込む
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => resolve(error))
+                .readCounter();
+            });
+          },
+          async start() {
+            this.recordCount = await this.gasCountRecord();
+            if (this.recordCount > 0) {
+              this.counter = await this.gasLoadCounter();
+            } else {
+              this.counter = 0;
+              alert('レコードが存在しません。初期値0をセットします。');
+            };
+            this.overlay = false;
           },
           countUp() {              // カウンターを1upする
             this.counter++
@@ -61,12 +98,25 @@
             //google.script.run.setSheetData(this.counter)
             //テーブルにレコードが存在すれば上書きし、無ければインサートする
             if (this.recordCount > 0) {
-              google.script.run.updateRecord(this.counter)
+              google.script.run
+                .withSuccessHandler(this.saveSuccess)
+                .withFailureHandler(this.saveFailure)
+                .updateRecord(this.counter)
             } else {
-              google.script.run.insertNewRecord(this.counter)
+              google.script.run
+                .withSuccessHandler(this.saveSuccess)
+                .withFailureHandler(this.saveFailure)
+                .insertNewRecord(this.counter)
             };
+          },
+          saveSuccess() {
+            this.overlay = false;
             alert('保存しました');
-          }
+          },
+          saveFailure() {
+            this.overlay = false;
+            alert('保存に失敗しました。テーブルの状態を確認してください。');
+          },
         },
         vuetify: new Vuetify({
           theme: {dark: true},
