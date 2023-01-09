@@ -20,7 +20,7 @@
             <v-btn color="primary" elevation="8" v-on:click="countUp">カウントアップ</v-btn>
             <v-btn color="warning" elevation="8" v-on:click="resetCounter">リセット</v-btn>
             </p>
-            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter">カウント保存</v-btn></p>
+            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter" @click="overlay = true">カウント保存</v-btn></p>
           </v-container>
         </v-main>
         <v-footer app color="orange">Modern Study 2022</v-footer>
@@ -40,7 +40,8 @@
         el: '#app' ,
         data: {
           counter:null ,
-          recordCount:null
+          recordCount:null,
+          overlay: false,
         },
         created: function() {
           this.overlay = true;
@@ -97,11 +98,24 @@
             //google.script.run.setSheetData(this.counter)
             //テーブルにレコードが存在すれば上書きし、無ければインサートする
             if (this.recordCount > 0) {
-              google.script.run.updateRecord(this.counter)
+              google.script.run
+                .withSuccessHandler(this.saveSuccess)
+                .withFailureHandler(this.saveFailure)
+                .updateRecord(this.counter)
             } else {
-              google.script.run.insertNewRecord(this.counter)
+              google.script.run
+                .withSuccessHandler(this.saveSuccess)
+                .withFailureHandler(this.saveFailure)
+                .insertNewRecord(this.counter)
             };
+          },
+          saveSuccess() {
+            this.overlay = false;
             alert('保存しました');
+          },
+          saveFailure() {
+            this.overlay = false;
+            alert('保存に失敗しました。テーブルの状態を確認してください。');
           },
         },
         vuetify: new Vuetify({
