@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <style>
     </style>
+    <title>Webアプリ開発 カウンター</title>
   </head>
   <body>
     <div id="app">
@@ -20,7 +21,7 @@
             <v-btn color="primary" elevation="8" v-on:click="countUp">カウントアップ</v-btn>
             <v-btn color="warning" elevation="8" v-on:click="resetCounter">リセット</v-btn>
             </p>
-            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter" @click="overlay = true">カウント保存</v-btn></p>
+            <p><v-btn color="secondary" elevation="8" v-on:click="saveCounter">カウント保存</v-btn></p>
           </v-container>
         </v-main>
         <v-footer app color="orange">Modern Study 2022</v-footer>
@@ -44,15 +45,14 @@
           overlay: false,
         },
         created: function() {
-          this.overlay = true;
           // ページロード時にスプレッドシートからカウンター値を読み込んでセット
           //google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
           // ページロード時にテーブル内のレコード数をカウント
           //google.script.run.withSuccessHandler(this.countRecord).countRecord();
           // ページロード時にテーブルから現在のカウンター値を読み込む
           //google.script.run.withSuccessHandler(this.loadCounter).readCounter();
-          // 開始処理
-          this.start();
+          // ページロード処理
+          this.initialLoad();
         },
         methods: {
           countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）※未使用
@@ -66,7 +66,7 @@
             return new Promise((resolve, reject) => {
               google.script.run
                 .withSuccessHandler((result) => resolve(result))
-                .withFailureHandler((error) => resolve(error))
+                .withFailureHandler((error) => reject(error))
                 .countRecord();
             });
           },
@@ -74,17 +74,22 @@
             return new Promise((resolve, reject) => {
               google.script.run
                 .withSuccessHandler((result) => resolve(result))
-                .withFailureHandler((error) => resolve(error))
+                .withFailureHandler((error) => reject(error))
                 .readCounter();
             });
           },
-          async start() {
-            this.recordCount = await this.gasCountRecord();
-            if (this.recordCount > 0) {
-              this.counter = await this.gasLoadCounter();
-            } else {
-              this.counter = 0;
-              alert('レコードが存在しません。初期値0をセットします。');
+          async initialLoad() {    // ページロード時の読み込み処理
+            this.overlay = true;
+            try {
+              this.recordCount = await this.gasCountRecord();
+              if (this.recordCount > 0) {
+                this.counter = await this.gasLoadCounter();
+              } else {
+                this.counter = 0;
+                alert('レコードが存在しません。初期値0をセットします。');
+              };
+            } catch(e) {
+              alert('テーブルの読み込みに失敗しました。テーブルの状態を確認してください。');
             };
             this.overlay = false;
           },
@@ -96,6 +101,7 @@
           },
           saveCounter() {          // カウンターをテーブルに保存する
             //google.script.run.setSheetData(this.counter)
+            this.overlay = true;
             //テーブルにレコードが存在すれば上書きし、無ければインサートする
             if (this.recordCount > 0) {
               google.script.run
