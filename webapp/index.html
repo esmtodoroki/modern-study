@@ -44,7 +44,8 @@
           recordCount:null,
           overlay: false,
         },
-        created: function() {
+        created: async function() {
+          this.overlay = true;    //ローダーのオーバーレイON
           // ページロード時にスプレッドシートからカウンター値を読み込んでセット
           //google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
           // ページロード時にテーブル内のレコード数をカウント
@@ -52,7 +53,8 @@
           // ページロード時にテーブルから現在のカウンター値を読み込む
           //google.script.run.withSuccessHandler(this.loadCounter).readCounter();
           // ページロード処理
-          this.initialLoad();
+          await this.initialLoad();
+          this.overlay = false;   //ローダーのオーバーレイOFF
         },
         methods: {
           countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）※未使用
@@ -62,7 +64,7 @@
             this.counter = result;
             this.overlay = false;
           },
-          gasCountRecord() {       // テーブルのレコード数をカウント
+          gasCountRecord() {       // GASを使用しテーブルのレコード数をカウント、Promise返却
             return new Promise((resolve, reject) => {
               google.script.run
                 .withSuccessHandler((result) => resolve(result))
@@ -70,7 +72,7 @@
                 .countRecord();
             });
           },
-          gasLoadCounter() {       // テーブルのカウンター値を読み込む
+          gasLoadCounter() {       // GASを使用しテーブルのカウンター値を読み込み、Promise返却
             return new Promise((resolve, reject) => {
               google.script.run
                 .withSuccessHandler((result) => resolve(result))
@@ -79,7 +81,6 @@
             });
           },
           async initialLoad() {    // ページロード時の読み込み処理
-            this.overlay = true;
             try {
               this.recordCount = await this.gasCountRecord();
               if (this.recordCount > 0) {
@@ -89,9 +90,8 @@
                 alert('レコードが存在しません。初期値0をセットします。');
               };
             } catch(e) {
-              alert('テーブルの読み込みに失敗しました。テーブルの状態を確認してください。');
+              notifyFailure();
             };
-            this.overlay = false;
           },
           countUp() {              // カウンターを1upする
             this.counter++
@@ -99,29 +99,48 @@
           resetCounter() {         // カウンターを0にリセットする
             this.counter = 0
           },
-          saveCounter() {          // カウンターをテーブルに保存する
+          async saveCounter() {          // カウンター値をテーブルに保存する
             //google.script.run.setSheetData(this.counter)
             this.overlay = true;
             //テーブルにレコードが存在すれば上書きし、無ければインサートする
             if (this.recordCount > 0) {
-              google.script.run
-                .withSuccessHandler(this.saveSuccess)
-                .withFailureHandler(this.saveFailure)
-                .updateRecord(this.counter)
+              try {
+                await this.gasUpdateCounter();
+                this.notifySuccess();
+              } catch(e) {
+                this.notifyFailure();
+              };
             } else {
-              google.script.run
-                .withSuccessHandler(this.saveSuccess)
-                .withFailureHandler(this.saveFailure)
-                .insertNewRecord(this.counter)
+              try {
+                await this.gasInsertCounter();
+                this.notifySuccess();
+              } catch(e) {
+                this.notifyFailure();
+              };
             };
-          },
-          saveSuccess() {
             this.overlay = false;
+          },
+          gasUpdateCounter() {       // GASを使用しカウンター値を更新し、Promise返却
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => reject(error))
+                .updateRecord(this.counter);
+            });
+          },
+          gasInsertCounter() {       // GASを使用しカウンター値を新規保存し、Promise返却
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => reject(error))
+                .insertNewRecord(this.counter);
+            });
+          },
+          notifySuccess() {
             alert('保存しました');
           },
-          saveFailure() {
-            this.overlay = false;
-            alert('保存に失敗しました。テーブルの状態を確認してください。');
+          notifyFailure() {
+            alert('DBアクセスに失敗しました。DBの状態を確認してください。');
           },
         },
         vuetify: new Vuetify({
