@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <style>
     </style>
+    <title>Webアプリ開発 カウンター</title>
   </head>
   <body>
     <div id="app">
@@ -15,7 +16,7 @@
         <v-app-bar app color="orange">シンプルカウンター</v-app-bar>
         <v-main>
           <v-container>
-            <p><v-text-field readonly="true" prefix="カウンター：　" v-bind:value="counter"></p>
+            <p><v-text-field prefix="カウンター：　" v-bind:value="counter"></p>
             <p>
             <v-btn color="primary" elevation="8" v-on:click="countUp">カウントアップ</v-btn>
             <v-btn color="warning" elevation="8" v-on:click="resetCounter">リセット</v-btn>
@@ -24,6 +25,12 @@
           </v-container>
         </v-main>
         <v-footer app color="orange">Modern Study 2022</v-footer>
+        <v-overlay :value="overlay">
+          <v-progress-circular
+            indeterminate
+            size="64"
+          ></v-progress-circular>
+        </v-overlay>
       </v-app>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
@@ -34,22 +41,57 @@
         el: '#app' ,
         data: {
           counter:null ,
-          recordCount:null
+          recordCount:null,
+          overlay: false,
         },
-        created: function() {
+        async created() {
+          this.overlay = true;    //ローダーのオーバーレイON
           // ページロード時にスプレッドシートからカウンター値を読み込んでセット
           //google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
           // ページロード時にテーブル内のレコード数をカウント
-          google.script.run.withSuccessHandler(this.countRecord).countRecord();
+          //google.script.run.withSuccessHandler(this.countRecord).countRecord();
           // ページロード時にテーブルから現在のカウンター値を読み込む
-          google.script.run.withSuccessHandler(this.loadCounter).readCounter();
+          //google.script.run.withSuccessHandler(this.loadCounter).readCounter();
+          // ページロード処理
+          await this.initialLoad();
+          this.overlay = false;   //ローダーのオーバーレイOFF
         },
         methods: {
-          countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）
+          countRecord(result) {    // googleスクリプト用コールバック関数（レコード数カウント）※未使用
             this.recordCount = result
           },
-          loadCounter(result) {    // googleスクリプト用コールバック関数（カウンター値読み込み）
-            this.counter = result
+          loadCounter(result) {    // googleスクリプト用コールバック関数（カウンター値読み込み）※未使用
+            this.counter = result;
+            this.overlay = false;
+          },
+          gasCountRecord() {       // GASを使用しテーブルのレコード数をカウント、Promise返却
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => reject(error))
+                .countRecord();
+            });
+          },
+          gasLoadCounter() {       // GASを使用しテーブルのカウンター値を読み込み、Promise返却
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => reject(error))
+                .readCounter();
+            });
+          },
+          async initialLoad() {    // ページロード時の読み込み処理
+            try {
+              this.recordCount = await this.gasCountRecord();
+              if (this.recordCount > 0) {
+                this.counter = await this.gasLoadCounter();
+              } else {
+                this.counter = 0;
+                alert('レコードが存在しません。初期値0をセットします。');
+              };
+            } catch(e) {
+              this.notifyFailure();
+            };
           },
           countUp() {              // カウンターを1upする
             this.counter++
@@ -57,16 +99,49 @@
           resetCounter() {         // カウンターを0にリセットする
             this.counter = 0
           },
-          saveCounter() {          // カウンターをテーブルに保存する
+          async saveCounter() {          // カウンター値をテーブルに保存する
             //google.script.run.setSheetData(this.counter)
+            this.overlay = true;
             //テーブルにレコードが存在すれば上書きし、無ければインサートする
             if (this.recordCount > 0) {
-              google.script.run.updateRecord(this.counter)
+              try {
+                await this.gasUpdateCounter();
+                this.notifySuccess();
+              } catch(e) {
+                this.notifyFailure();
+              };
             } else {
-              google.script.run.insertNewRecord(this.counter)
+              try {
+                await this.gasInsertCounter();
+                this.notifySuccess();
+              } catch(e) {
+                this.notifyFailure();
+              };
             };
+            this.overlay = false;
+          },
+          gasUpdateCounter() {       // GASを使用しカウンター値を更新し、Promise返却
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => reject(error))
+                .updateRecord(this.counter);
+            });
+          },
+          gasInsertCounter() {       // GASを使用しカウンター値を新規保存し、Promise返却
+            return new Promise((resolve, reject) => {
+              google.script.run
+                .withSuccessHandler((result) => resolve(result))
+                .withFailureHandler((error) => reject(error))
+                .insertNewRecord(this.counter);
+            });
+          },
+          notifySuccess() {
             alert('保存しました');
-          }
+          },
+          notifyFailure() {
+            alert('DBアクセスに失敗しました。DBの状態を確認してください。');
+          },
         },
         vuetify: new Vuetify({
           theme: {dark: true},
