@@ -44,7 +44,7 @@
           recordCount:null,
           overlay: false,
         },
-        created: async function() {
+        async created() {
           this.overlay = true;    //ローダーのオーバーレイON
           // ページロード時にスプレッドシートからカウンター値を読み込んでセット
           //google.script.run.withSuccessHandler(this.loadCounter).getSheetData()
