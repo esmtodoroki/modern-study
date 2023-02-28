@@ -1,0 +1,38 @@
+create table web_book_esmtodoroki.book_table (
+    book_id int(3) not null auto_increment comment '書籍ID',
+    title varchar(50) comment '書籍名',
+    genre_id char(2) comment 'ジャンルID',
+    purchase_date date comment '購入日',
+    purchase_name varchar(10) comment '購入者',
+    review varchar(200) commnet 'レビュー',
+    primary key (book_id)
+);
+
+create table web_book_esmtodoroki.genre_table (
+    genre_id char(2) not null comment 'ジャンルID',
+    genre_name varchar(10) not null comment '書籍ジャンル',
+    primary key (genre_id)
+);
+
+insert into web_book_esmtodoroki.genre_table
+    (genre_id, genre_name)
+    values
+        ('01', '文学'),
+        ('02', 'ノンフィクション'),
+        ('03', 'ビジネス・経済'),
+        ('04', '歴史・地理'),
+        ('05', '政治・社会'),
+        ('06', '芸能'),
+        ('07', 'アート・デザイン'),
+        ('08', '人文・思想'),
+        ('09', '暮らし・健康'),
+        ('10', 'サイエンス'),
+        ('11', '趣味・実用'),
+        ('12', '教育・自己啓発'),
+        ('13', 'スポーツ'),
+        ('14', '辞典'),
+        ('15', '音楽'),
+        ('16', '旅行'),
+        ('17', '絵本'),
+        ('18', 'コミックス')
+;
