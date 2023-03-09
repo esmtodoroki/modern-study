@@ -2,6 +2,7 @@
  * テーブル読み込み関数
  */
 //書籍テーブル内の全レコードを読み込んで配列へ格納
+import readTableSub from './common/readTableSub'
 export default function readBookTableAll() {
     var sql = 'SELECT * FROM book_table';
     var results = readTableSub(sql);

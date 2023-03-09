@@ -2,6 +2,7 @@
  * テーブル読み込み関数
  */
 //ジャンルテーブル内の全レコードを読み込んで配列へ格納
+import readTableSub from './common/readTableSub'
 export default function readGenreTable() {
   var sql = 'SELECT * FROM genre_table';
   var results = readTableSub(sql);
