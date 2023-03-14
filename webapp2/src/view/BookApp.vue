@@ -8,7 +8,15 @@
         <v-text-field solo clearable label="書籍名" variant="outlined" width="400"></v-text-field>
       </v-col>
       <v-col cols="2" class="pt-1 pb-0">
-        <v-select solo v-bind:items="genre" label="ジャンル" width="100"></v-select>
+        <v-select
+          solo
+          v-bind:items="genreList"
+          label="ジャンル"
+          item-text="genre_name"
+          item-value="genre_id"
+          width="100"
+          >
+        </v-select>
       </v-col>
       <v-col cols="4" class="pt-1 pb-0">
         <v-btn color="light-blue lighten-1" class="mt-2 white--text" @click="searchBook"><v-icon left>mdi-folder-search</v-icon>検索</v-btn>
@@ -37,7 +45,7 @@
 export default {
   data () {
     return {
-      genre: [ '雑誌', '小説', '実用書', 'ノンフィクション' ], // 仮に固定値設定
+      genreList: [ ],
       headers: [
         { text: 'タイトル', value: 'title', width: '50%' },
         { text: 'ジャンル', value: 'genre', width: '14%' },
@@ -51,9 +59,16 @@ export default {
       ]
     }
   },
-  created () {},
+  created () { // DB接続確認用に仮の関数を起動
+    google.script.run.withSuccessHandler(this.loadGenreList).readGenreTable() // eslint-disable-line no-undef
+  },
   computed: {},
-  methods: {}
+  methods: { // DB接続確認用の仮の関数
+    loadGenreList (result) {
+      this.genreList = result
+      console.log(this.genreList)
+    }
+  }
 }
 </script>
 
