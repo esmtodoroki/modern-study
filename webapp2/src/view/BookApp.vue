@@ -25,19 +25,23 @@
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <v-btn color="teal accent-2" @click="registNewItem"><v-icon left>mdi-pencil-plus</v-icon>書籍を登録</v-btn>
+        <v-btn color="teal accent-2" @click="insertNewItem"><v-icon left>mdi-pencil-plus</v-icon>書籍を登録</v-btn>
       </v-col>
     </v-row>
     <v-data-table
       :headers="headers"
       :items="items"
-      sort-by="bookId"
+      sort-by="book_id"
     >
       <template v-slot:item.actions="{ item }">
         <v-btn small color="orange lighten-1" class="mx-1 white--text" @click="editItem(item)"><v-icon left>mdi-pencil</v-icon>編集</v-btn>
         <v-btn small color="red accent-3" class="mx-1 white--text" @click="deleteItem(item)"><v-icon left>mdi-delete</v-icon>削除</v-btn>
       </template>
     </v-data-table>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64">
+      </v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
@@ -48,25 +52,51 @@ export default {
       genreList: [ ],
       headers: [
         { text: 'タイトル', value: 'title', width: '50%' },
-        { text: 'ジャンル', value: 'genre', width: '14%' },
-        { text: '購入日', value: 'date', width: '10%' },
-        { text: '購入者', value: 'buyer', width: '10%' },
+        { text: 'ジャンル', value: 'genre_name', width: '14%' },
+        { text: '購入日', value: 'purchase_date', width: '10%' },
+        { text: '購入者', value: 'purchase_name', width: '10%' },
         { text: '操作', value: 'actions', width: '16%', sortable: false }
       ],
-      items: [
-        { bookId: 1, title: '書籍Ａ', genre: 'ジャンルＣ', date: '2022/11/23', buyer: '購入者Ｅ' }, // 仮の値
-        { bookId: 2, title: '書籍Ｂ', genre: 'ジャンルＤ', date: '2022/05/10', buyer: '購入者Ｆ' } // 仮の値
-      ]
+      items: [ ],
+      overlay: false
     }
   },
-  created () { // DB接続確認用に仮の関数を起動
-    google.script.run.withSuccessHandler(this.loadGenreList).readGenreTable() // eslint-disable-line no-undef
+  async created () {
+    this.overlay = true
+    await this.initialLoad()
+    this.overlay = false
   },
   computed: {},
-  methods: { // DB接続確認用の仮の関数
-    loadGenreList (result) {
-      this.genreList = result
-      console.log(this.genreList)
+  methods: {
+    // ページロード時の読み込み処理
+    async initialLoad () {
+      const initialGet = await Promise.all([this.readBookTableAll(), this.readGenreTable()]).catch((e) => {
+        this.notifyFailure()
+      })
+      this.items = initialGet[0]
+      this.genreList = initialGet[1]
+    },
+    // GASを使用しジャンルテーブルを読み込み、Promise返却
+    readGenreTable () {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .readGenreTable()
+      })
+    },
+    // GASを使用し書籍テーブルを読み込み、Promise返却
+    readBookTableAll () {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .readBookTableAll()
+      })
+    },
+    // DBアクセス異常通知
+    notifyFailure () {
+      alert('DBにアクセス出来ませんでした。DBの状態を確認してください！')
     }
   }
 }
