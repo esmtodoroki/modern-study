@@ -12,30 +12,56 @@
           solo
           v-bind:items="genreList"
           label="ジャンル"
-          item-text="genre_name"
-          item-value="genre_id"
+          item-text="genreName"
+          item-value="genreId"
           width="100"
           >
         </v-select>
       </v-col>
       <v-col cols="4" class="pt-1 pb-0">
-        <v-btn color="light-blue lighten-1" class="mt-2 white--text" @click="searchBook"><v-icon left>mdi-folder-search</v-icon>検索</v-btn>
-        <v-btn color="blue darken-3" class="mt-2 ml-2 white--text" @click="searchClear"><v-icon left>mdi-backspace</v-icon>検索条件クリア</v-btn>
+        <v-btn
+          color="light-blue lighten-1"
+          class="mt-2 white--text"
+          @click="searchBook">
+          <v-icon left>mdi-folder-search</v-icon>検索
+        </v-btn>
+        <v-btn
+          color="blue darken-3"
+          class="mt-2 ml-2 white--text"
+          @click="searchClear">
+          <v-icon left>mdi-backspace</v-icon>検索条件クリア
+        </v-btn>
       </v-col>
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <v-btn color="teal accent-2" @click="insertNewItem"><v-icon left>mdi-pencil-plus</v-icon>書籍を登録</v-btn>
+        <v-btn
+          color="teal accent-2"
+          @click="insertNewItem">
+          <v-icon left>mdi-pencil-plus</v-icon>書籍を登録
+        </v-btn>
       </v-col>
     </v-row>
     <v-data-table
       :headers="headers"
       :items="items"
-      sort-by="book_id"
+      sort-by="bookId"
     >
       <template v-slot:item.actions="{ item }">
-        <v-btn small color="orange lighten-1" class="mx-1 white--text" @click="editItem(item)"><v-icon left>mdi-pencil</v-icon>編集</v-btn>
-        <v-btn small color="red accent-3" class="mx-1 white--text" @click="deleteItem(item)"><v-icon left>mdi-delete</v-icon>削除</v-btn>
+        <v-btn
+          small
+          color="orange lighten-1"
+          class="mx-1 white--text"
+          @click="editItem(item)">
+          <v-icon left>mdi-pencil</v-icon>編集
+        </v-btn>
+        <v-btn
+          small
+          color="red accent-3"
+          class="mx-1 white--text"
+          @click="deleteItem(item)">
+          <v-icon left>mdi-delete</v-icon>削除
+        </v-btn>
       </template>
     </v-data-table>
     <v-overlay :value="overlay">
@@ -52,9 +78,9 @@ export default {
       genreList: [ ],
       headers: [
         { text: 'タイトル', value: 'title', width: '50%' },
-        { text: 'ジャンル', value: 'genre_name', width: '14%' },
-        { text: '購入日', value: 'purchase_date', width: '10%' },
-        { text: '購入者', value: 'purchase_name', width: '10%' },
+        { text: 'ジャンル', value: 'genreName', width: '14%' },
+        { text: '購入日', value: 'purchaseDate', width: '10%' },
+        { text: '購入者', value: 'purchaseName', width: '10%' },
         { text: '操作', value: 'actions', width: '16%', sortable: false }
       ],
       items: [ ],
@@ -70,7 +96,10 @@ export default {
   methods: {
     // ページロード時の読み込み処理
     async initialLoad () {
-      const initialGet = await Promise.all([this.readBookTableAll(), this.readGenreTable()]).catch((e) => {
+      const initialGet = await Promise.all([
+        this.readBookTableAll(),
+        this.readGenreTable()
+      ]).catch((e) => {
         this.notifyFailure()
       })
       this.items = initialGet[0]
