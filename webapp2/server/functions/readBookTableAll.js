@@ -13,9 +13,9 @@ export default function readBookTableAll() {
         LEFT OUTER JOIN genre_table AS B
           ON A.genre_id = B.genre_id`;
     const results = readTableSub(sql);
-    let dataArray = [];
+    const dataArray = [];
     while (results.next()) {
-      let row = {
+      const row = {
         bookId: '',
         title: '',
         genreId: '',

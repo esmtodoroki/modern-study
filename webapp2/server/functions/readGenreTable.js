@@ -6,9 +6,9 @@ import readTableSub from './common/readTableSub'
 export default function readGenreTable() {
   const sql = 'SELECT * FROM genre_table';
   const results = readTableSub(sql);
-  let dataArray = [];
+  const dataArray = [];
   while (results.next()) {
-    let row = { genreId: '', genreName: '' };
+    const row = { genreId: '', genreName: '' };
     row.genreId = results.getString("genre_id");
     row.genreName = results.getString("genre_name")
     dataArray.push(row);
