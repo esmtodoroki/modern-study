@@ -10,7 +10,7 @@
       <v-col cols="2" class="pt-1 pb-0">
         <v-select
           solo
-          v-bind:items="genreList"
+          v-bind:items="searchGenreList"
           label="ジャンル"
           item-text="genreName"
           item-value="genreId"
@@ -42,6 +42,7 @@
         </v-btn>
       </v-col>
     </v-row>
+    <!-- 登録されている書籍情報を表示するリスト -->
     <v-data-table
       :headers="headers"
       :items="items"
@@ -64,10 +65,127 @@
         </v-btn>
       </template>
     </v-data-table>
+    <!-- DBアクセス時に表示するオーバーレイ -->
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64">
       </v-progress-circular>
     </v-overlay>
+    <!-- 書籍登録／編集時に表示する入力フォーム -->
+    <div id="overlay" v-show="showForm">
+      <div id="formWindow">
+        <v-card>
+          <v-card-title>
+            書籍登録／編集
+          </v-card-title>
+          <v-card-text>
+            <v-form ref="form">
+              <v-row>
+                <v-col class="py-0">
+                  <v-text-field
+                    v-model="formTitle"
+                    label="タイトル"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="py-0">
+                  <v-select
+                    v-bind:items="formGenreList"
+                    label="ジャンル"
+                    item-text="genreName"
+                    item-value="genreId"
+                    required
+                  ></v-select>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="py-0">
+                  <v-menu
+                    ref="menu"
+                    v-model="pickerMenu"
+                    :close-on-content-click="false"
+                    :return-value.sync="pickerDate"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="pickerDate"
+                        label="購入日"
+                        prepend-icon="mdi-calendar-cursor"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="pickerDate"
+                      no-title
+                      scrollable
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        class="mr-2"
+                        color="primary"
+                        @click="$refs.menu.save(pickerDate)"
+                      >
+                        決定
+                      </v-btn>
+                      <v-btn
+                        class="mr-2"
+                        color="secondary"
+                        @click="pickerMenu = false"
+                      >
+                        取消
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="py-0">
+                  <v-text-field
+                    v-model="formPurchaseName"
+                    label="購入者"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="py-0">
+                  <v-textarea
+                    v-model="formReview"
+                    filled
+                    label="レビュー"
+                    auto-grow
+                    clearable
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="py-0" align="center">
+                  <v-btn
+                    class="mr-4"
+                    color="primary"
+                    @click="submit"
+                  >
+                    登録
+                  </v-btn>
+                  <v-btn
+                    color="secondary"
+                    @click="closeForm"
+                  >
+                    取消
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -75,7 +193,7 @@
 export default {
   data () {
     return {
-      genreList: [ ],
+      searchGenreList: [],
       headers: [
         { text: 'タイトル', value: 'title', width: '50%' },
         { text: 'ジャンル', value: 'genreName', width: '14%' },
@@ -83,8 +201,15 @@ export default {
         { text: '購入者', value: 'purchaseName', width: '10%' },
         { text: '操作', value: 'actions', width: '16%', sortable: false }
       ],
-      items: [ ],
-      overlay: false
+      items: [],
+      formTitle: '',
+      formGenreList: [],
+      pickerDate: new Date().toISOString().substr(0, 10),
+      pickerMenu: false,
+      formPurchaseName: '',
+      formReview: '',
+      overlay: false,
+      showForm: false
     }
   },
   async created () {
@@ -103,7 +228,8 @@ export default {
         this.notifyFailure()
       })
       this.items = initialGet[0]
-      this.genreList = initialGet[1]
+      this.searchGenreList = initialGet[1]
+      this.formGenreList = this.searchGenreList
     },
     // GASを使用しジャンルテーブルを読み込み、Promise返却
     readGenreTable () {
@@ -126,6 +252,14 @@ export default {
     // DBアクセス異常通知
     notifyFailure () {
       alert('DBにアクセス出来ませんでした。DBの状態を確認してください！')
+      this.overlay = false
+    },
+    insertNewItem () {
+      this.showForm = true
+    },
+    closeForm () {
+      this.$refs.form.reset()
+      this.showForm = false
     }
   }
 }
@@ -134,5 +268,26 @@ export default {
 <style>
 .v-data-table th {
     background: #90CAF9;
+}
+#overlay{
+  /* 要素を重ねた時の順番 */
+  z-index:1;
+  /* 画面全体を覆う設定 */
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color:rgba(0,0,0,0.5);
+  /* 画面の中央に要素を表示させる設定 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#formWindow{
+  z-index:2;
+  width:30%;
+  padding: 1em;
+  background:#90CAF9;
 }
 </style>
