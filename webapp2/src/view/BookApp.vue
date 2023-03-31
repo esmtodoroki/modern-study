@@ -37,7 +37,7 @@
       <v-col class="pt-0">
         <v-btn
           color="teal accent-2"
-          @click="insertNewItem">
+          @click="openForm">
           <v-icon left>mdi-pencil-plus</v-icon>書籍を登録
         </v-btn>
       </v-col>
@@ -169,7 +169,7 @@
                   <v-btn
                     class="mr-4"
                     color="primary"
-                    @click="submit"
+                    @click="submitInsertNewItem"
                   >
                     登録
                   </v-btn>
@@ -249,17 +249,44 @@ export default {
           .readBookTableAll()
       })
     },
-    // DBアクセス異常通知
-    notifyFailure () {
-      alert('DBにアクセス出来ませんでした。DBの状態を確認してください！')
-      this.overlay = false
-    },
+    // GASを使用し書籍テーブルへ新規登録、Promise返却
+    // ※疎通確認用に固定値セット
     insertNewItem () {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .insertNewBook('書籍名', '12', this.pickerDate, '某', 'まあまあ')
+      })
+    },
+    // 書籍新規登録フォーム表示
+    openForm () {
       this.showForm = true
+    },
+    // 書籍新規登録サブミット
+    async submitInsertNewItem () {
+      this.overlay = true
+      try {
+        await this.insertNewItem() // 書籍登録
+      } catch (e) {
+        this.notifyFailure()
+      }
+      try {
+        await this.readBookTableAll() // 書籍一覧リロード（現状動作せず）
+      } catch (e) {
+        this.notifyFailure()
+      }
+      this.overlay = false
+      this.closeForm()
     },
     closeForm () {
       this.$refs.form.reset()
       this.showForm = false
+    },
+    // DBアクセス異常通知
+    notifyFailure () {
+      alert('DBにアクセス出来ませんでした。DBの状態を確認してください！')
+      this.overlay = false
     }
   }
 }
