@@ -271,11 +271,6 @@ export default {
       } catch (e) {
         this.notifyFailure()
       }
-      try {
-        await this.readBookTableAll() // 書籍一覧リロード（現状動作せず）
-      } catch (e) {
-        this.notifyFailure()
-      }
       this.overlay = false
       this.closeForm()
     },

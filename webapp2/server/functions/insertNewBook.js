@@ -1,10 +1,7 @@
-/**
- * テーブル書き込み関数
- */
-//書籍テーブルへ新しい書籍レコードを格納
 import { USER_NAME, PASSWORD, URL } from './common/dbParam'
+//書籍テーブルへ新しい書籍レコードを格納
 export default function insertNewBook(
-  Title, 
+  title, 
   genreId, 
   purchaseDate, 
   purchaseName, 
@@ -20,7 +17,7 @@ export default function insertNewBook(
       review)
       values (?, ?, ?, ?, ?)`;
   const statement = connection.prepareStatement(sql);
-  statement.setString(1, Title);
+  statement.setString(1, title);
   statement.setString(2, genreId);
   statement.setString(3, purchaseDate);
   statement.setString(4, purchaseName);
