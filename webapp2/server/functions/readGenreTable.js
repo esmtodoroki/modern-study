@@ -1,8 +1,5 @@
-/**
- * テーブル読み込み関数
- */
-//ジャンルテーブル内の全レコードを読み込んで配列へ格納
 import readTableSub from './common/readTableSub'
+//ジャンルテーブル内の全レコードを読み込んで配列へ格納
 export default function readGenreTable() {
   const sql = 'SELECT * FROM genre_table';
   const results = readTableSub(sql);

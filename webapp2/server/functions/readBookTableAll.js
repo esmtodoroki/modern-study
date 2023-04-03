@@ -1,8 +1,5 @@
-/**
- * テーブル読み込み関数
- */
-//書籍テーブル内の全レコードを読み込んで配列へ格納
 import readTableSub from './common/readTableSub'
+//書籍テーブル内の全レコードを読み込んで配列へ格納
 export default function readBookTableAll() {
     const sql = `
       SELECT
