@@ -91,7 +91,8 @@
               <v-row>
                 <v-col class="py-0">
                   <v-select
-                    v-bind:items="formGenreList"
+                    v-model="selectedFormGenreList"
+                    :items="formGenreList"
                     label="ジャンル"
                     item-text="genreName"
                     item-value="genreId"
@@ -204,6 +205,7 @@ export default {
       items: [],
       formTitle: '',
       formGenreList: [],
+      selectedFormGenreList: '',
       pickerDate: new Date().toISOString().substr(0, 10),
       pickerMenu: false,
       formPurchaseName: '',
@@ -250,13 +252,18 @@ export default {
       })
     },
     // GASを使用し書籍テーブルへ新規登録、Promise返却
-    // ※疎通確認用に固定値セット
     insertNewItem () {
       return new Promise((resolve, reject) => {
         google.script.run // eslint-disable-line no-undef
           .withSuccessHandler((result) => resolve(result))
           .withFailureHandler((error) => reject(error))
-          .insertNewBook('書籍名', '12', this.pickerDate, '某', 'まあまあ')
+          .insertNewBook(
+            this.formTitle,
+            this.selectedFormGenreList,
+            this.pickerDate,
+            this.formPurchaseName,
+            this.formReview
+          )
       })
     },
     // 書籍新規登録フォーム表示
@@ -268,12 +275,14 @@ export default {
       this.overlay = true
       try {
         await this.insertNewItem() // 書籍登録
+        this.items = await this.readBookTableAll() // 書籍一覧更新
       } catch (e) {
         this.notifyFailure()
       }
       this.overlay = false
       this.closeForm()
     },
+    // 入力フォームクローズ
     closeForm () {
       this.$refs.form.reset()
       this.showForm = false
