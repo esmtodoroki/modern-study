@@ -31,6 +31,13 @@
           @click="searchClear">
           <v-icon left>mdi-backspace</v-icon>検索条件クリア
         </v-btn>
+        <!-- 書籍削除疎通確認用の仮設置 -->
+        <v-btn
+          color="red accent-3"
+          class="mt-2 ml-2 white--text"
+          @click="deleteItem">
+          <v-icon left>mdi-delete</v-icon>書籍削除
+        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -210,6 +217,7 @@ export default {
       pickerMenu: false,
       formPurchaseName: '',
       formReview: '',
+      selectedBookId: 5, // 削除する書籍レコードのbookIdに仮の固定値セット
       overlay: false,
       showForm: false
     }
@@ -264,6 +272,15 @@ export default {
             this.formPurchaseName,
             this.formReview
           )
+      })
+    },
+    // GASを使用し書籍テーブルから書籍レコード削除、Promise返却
+    deleteItem () {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .deleteBook(this.selectedBookId)
       })
     },
     // 書籍新規登録フォーム表示
