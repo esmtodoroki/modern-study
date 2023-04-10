@@ -190,7 +190,7 @@
     <!-- 書籍削除時に表示する確認ダイアログ -->
     <v-dialog v-model="dialogDelete" max-width="25%">
       <v-card>
-        <v-card-title>【{{ itemTitle }}】を削除しますか？</v-card-title>
+        <v-card-title>{{ dialogTitle }}</v-card-title>
         <v-card-actions>
           <v-btn
             color="red accent-3"
@@ -243,8 +243,10 @@ export default {
     this.overlay = false
   },
   computed: {
-    itemTitle () {
-      return this.selectedTitle
+    dialogTitle () {
+      // const dialogMessage = `【${this.selectedTitle}】を削除しますか？`
+      // return dialogMessage
+      return `【${this.selectedTitle}】を削除しますか？`
     }
   },
   methods: {
