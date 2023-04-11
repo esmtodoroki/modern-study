@@ -31,13 +31,6 @@
           @click="searchClear">
           <v-icon left>mdi-backspace</v-icon>検索条件クリア
         </v-btn>
-        <!-- 書籍削除疎通確認用の仮設置 -->
-        <v-btn
-          color="red accent-3"
-          class="mt-2 ml-2 white--text"
-          @click="deleteItem">
-          <v-icon left>mdi-delete</v-icon>書籍削除
-        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -67,7 +60,7 @@
           small
           color="red accent-3"
           class="mx-1 white--text"
-          @click="deleteItem(item)">
+          @click="openDeleteDialog(item)">
           <v-icon left>mdi-delete</v-icon>削除
         </v-btn>
       </template>
@@ -194,6 +187,26 @@
         </v-card>
       </div>
     </div>
+    <!-- 書籍削除時に表示する確認ダイアログ -->
+    <v-dialog v-model="dialogDelete" max-width="25%">
+      <v-card>
+        <v-card-title>{{ dialogTitle }}</v-card-title>
+        <v-card-actions>
+          <v-btn
+            color="red accent-3"
+            class="mx-auto white--text"
+            @click="deleteItemConfirm"
+          >削除
+          </v-btn>
+          <v-btn
+            color="secondary"
+            class="mx-auto"
+            @click="closeDelete"
+          >取消
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -217,9 +230,11 @@ export default {
       pickerMenu: false,
       formPurchaseName: '',
       formReview: '',
-      selectedBookId: 5, // 削除する書籍レコードのbookIdに仮の固定値セット
+      selectedBookId: '',
+      selectedTitle: '',
       overlay: false,
-      showForm: false
+      showForm: false,
+      dialogDelete: false
     }
   },
   async created () {
@@ -227,7 +242,13 @@ export default {
     await this.initialLoad()
     this.overlay = false
   },
-  computed: {},
+  computed: {
+    dialogTitle () {
+      // const dialogMessage = `【${this.selectedTitle}】を削除しますか？`
+      // return dialogMessage
+      return `【${this.selectedTitle}】を削除しますか？`
+    }
+  },
   methods: {
     // ページロード時の読み込み処理
     async initialLoad () {
@@ -303,6 +324,28 @@ export default {
     closeForm () {
       this.$refs.form.reset()
       this.showForm = false
+    },
+    // 書籍削除ダイアログ表示
+    openDeleteDialog (item) {
+      this.dialogDelete = true
+      this.selectedBookId = item.bookId
+      this.selectedTitle = item.title
+    },
+    // 書籍削除決定
+    async deleteItemConfirm () {
+      this.closeDelete()
+      this.overlay = true
+      try {
+        await this.deleteItem() // 書籍削除
+        this.items = await this.readBookTableAll() // 書籍一覧更新
+      } catch (e) {
+        this.notifyFailure()
+      }
+      this.overlay = false
+    },
+    // 削除ダイアログクローズ
+    closeDelete () {
+      this.dialogDelete = false
     },
     // DBアクセス異常通知
     notifyFailure () {
