@@ -53,7 +53,7 @@
           small
           color="orange lighten-1"
           class="mx-1 white--text"
-          @click="editItem(item)">
+          @click="openEditForm(item)">
           <v-icon left>mdi-pencil</v-icon>編集
         </v-btn>
         <v-btn
@@ -244,8 +244,6 @@ export default {
   },
   computed: {
     dialogTitle () {
-      // const dialogMessage = `【${this.selectedTitle}】を削除しますか？`
-      // return dialogMessage
       return `【${this.selectedTitle}】を削除しますか？`
     }
   },
@@ -346,6 +344,16 @@ export default {
     // 削除ダイアログクローズ
     closeDelete () {
       this.dialogDelete = false
+    },
+    // 書籍編集フォーム表示
+    openEditForm (item) {
+      this.selectedBookId = item.bookId
+      this.formTitle = item.title
+      this.selectedFormGenreList = item.genreId
+      this.pickerDate = item.purchaseDate
+      this.formPurchaseName = item.purchaseName
+      this.formReview = item.review
+      this.showForm = true
     },
     // DBアクセス異常通知
     notifyFailure () {
