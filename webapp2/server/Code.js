@@ -6,6 +6,7 @@ import readBookTableAll from './functions/readBookTableAll'
 import readGenreTable from './functions/readGenreTable'
 import insertNewBook from './functions/insertNewBook'
 import deleteBook from './functions/deleteBook'
+import updateBook from './functions/updateBook'
 
 global.doGet = doGet
 global.sample = sample
@@ -14,3 +15,4 @@ global.readBookTableAll = readBookTableAll
 global.readGenreTable = readGenreTable
 global.insertNewBook = insertNewBook
 global.deleteBook = deleteBook
+global.updateBook = updateBook

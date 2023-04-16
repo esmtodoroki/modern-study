@@ -170,7 +170,7 @@
                   <v-btn
                     class="mr-4"
                     color="primary"
-                    @click="submitInsertNewItem"
+                    @click="handlerInsertOrUpdate"
                   >
                     登録
                   </v-btn>
@@ -302,8 +302,25 @@ export default {
           .deleteBook(this.selectedBookId)
       })
     },
+    // GASを使用し書籍テーブルを更新、Promise返却
+    updateItem () {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .updateBook(
+            this.selectedBookId,
+            this.formTitle,
+            this.selectedFormGenreList,
+            this.pickerDate,
+            this.formPurchaseName,
+            this.formReview
+          )
+      })
+    },
     // 書籍新規登録フォーム表示
     openForm () {
+      this.selectedBookId = 0
       this.showForm = true
     },
     // 書籍新規登録サブミット
@@ -354,6 +371,26 @@ export default {
       this.formPurchaseName = item.purchaseName
       this.formReview = item.review
       this.showForm = true
+    },
+    // 書籍情報更新サブミット
+    async submitUpdateItem () {
+      this.overlay = true
+      try {
+        await this.updateItem() // 書籍情報更新
+        this.items = await this.readBookTableAll() // 書籍一覧更新
+      } catch (e) {
+        this.notifyFailure()
+      }
+      this.overlay = false
+      this.closeForm()
+    },
+    // 書籍新規登録と既存書籍更新の処理を振り分けるハンドラー
+    handlerInsertOrUpdate () {
+      if (this.selectedBookId === 0) {
+        this.submitInsertNewItem() // 新規登録
+      } else {
+        this.submitUpdateItem() // 既存更新
+      }
     },
     // DBアクセス異常通知
     notifyFailure () {
