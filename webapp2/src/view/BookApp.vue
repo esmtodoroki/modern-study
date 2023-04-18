@@ -31,6 +31,13 @@
           @click="searchClear">
           <v-icon left>mdi-backspace</v-icon>検索条件クリア
         </v-btn>
+<!-- 疎通確認用ボタン（後で消す） -->
+        <v-btn
+          color="blue-grey darken-3"
+          class="mt-2 ml-2 white--text"
+          @click="showReview">
+          <v-icon left>mdi-book-open-variant</v-icon>（仮）
+        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -207,6 +214,33 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- 書籍レビューを表示するダイアログ -->
+    <v-dialog
+      v-model="dialogReview"
+      persistent
+      max-width="35%">
+      <v-card>
+        <v-card-title>{{ reviewTitle }}</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-textarea
+              v-model="formReview"
+              solo
+              dense
+              readonly
+            ></v-textarea>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="secondary"
+            class="mx-auto"
+            @click="closeReview"
+          >閉じる
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -234,7 +268,8 @@ export default {
       selectedTitle: '',
       overlay: false,
       showForm: false,
-      dialogDelete: false
+      dialogDelete: false,
+      dialogReview: false
     }
   },
   async created () {
@@ -245,6 +280,9 @@ export default {
   computed: {
     dialogTitle () {
       return `【${this.selectedTitle}】を削除しますか？`
+    },
+    reviewTitle () {
+      return `【${this.formTitle}】のレビュー`
     }
   },
   methods: {
@@ -391,6 +429,17 @@ export default {
       } else {
         this.submitUpdateItem() // 既存更新
       }
+    },
+    // 書籍レビューダイアログオープン
+    showReview (item) {
+      // 疎通確認用に仮の値をセット
+      this.formTitle = '書籍のタイトル'
+      this.formReview = '書籍のレビューをここに表示する'
+      this.dialogReview = true
+    },
+    // 書籍レビューダイアログクローズ
+    closeReview () {
+      this.dialogReview = false
     },
     // DBアクセス異常通知
     notifyFailure () {
