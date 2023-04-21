@@ -31,13 +31,6 @@
           @click="searchClear">
           <v-icon left>mdi-backspace</v-icon>検索条件クリア
         </v-btn>
-<!-- 疎通確認用ボタン（後で消す） -->
-        <v-btn
-          color="blue-grey darken-3"
-          class="mt-2 ml-2 white--text"
-          @click="showReview">
-          <v-icon left>mdi-book-open-variant</v-icon>（仮）
-        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -53,6 +46,7 @@
     <v-data-table
       :headers="headers"
       :items="items"
+      @click:row="showReview"
       sort-by="bookId"
     >
       <template v-slot:item.actions="{ item }">
@@ -60,14 +54,14 @@
           small
           color="orange lighten-1"
           class="mx-1 white--text"
-          @click="openEditForm(item)">
+          @click.stop="openEditForm(item)">
           <v-icon left>mdi-pencil</v-icon>編集
         </v-btn>
         <v-btn
           small
           color="red accent-3"
           class="mx-1 white--text"
-          @click="openDeleteDialog(item)">
+          @click.stop="openDeleteDialog(item)">
           <v-icon left>mdi-delete</v-icon>削除
         </v-btn>
       </template>
@@ -432,14 +426,15 @@ export default {
     },
     // 書籍レビューダイアログオープン
     showReview (item) {
-      // 疎通確認用に仮の値をセット
-      this.formTitle = '書籍のタイトル'
-      this.formReview = '書籍のレビューをここに表示する'
+      this.formTitle = item.title
+      this.formReview = item.review
       this.dialogReview = true
     },
     // 書籍レビューダイアログクローズ
     closeReview () {
       this.dialogReview = false
+      this.formTitle = ''
+      this.formReview = ''
     },
     // DBアクセス異常通知
     notifyFailure () {
