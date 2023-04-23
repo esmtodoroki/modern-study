@@ -310,6 +310,15 @@ export default {
           .readBookTableAll()
       })
     },
+    // GASを使用しジャンルを指定して書籍テーブルを読み込み、Promise返却
+    readBookTableFilteringGenre (genreId) {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .readBookTableFilteringGenre(genreId)
+      })
+    },
     // GASを使用し書籍テーブルへ新規登録、Promise返却
     insertNewItem () {
       return new Promise((resolve, reject) => {
@@ -435,6 +444,12 @@ export default {
       this.dialogReview = false
       this.formTitle = ''
       this.formReview = ''
+    },
+    // 書籍を検索（暫定：ジャンル指定の疎通確認）
+    async searchBook () {
+      const genreId = '04'
+      this.items = await this.readBookTableFilteringGenre(genreId)
+      console.log(this.items)
     },
     // DBアクセス異常通知
     notifyFailure () {
