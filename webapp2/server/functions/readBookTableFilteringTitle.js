@@ -10,9 +10,7 @@ export default function readBookTableFilteringTitle(title) {
       LEFT OUTER JOIN genre_table AS B
         ON A.genre_id = B.genre_id
     WHERE
-      A.title LIKE '%`;
-  sql += title;
-  sql += `%'`;
+      A.title LIKE '%${title}%'`;
   const results = readTableSub(sql);
   const dataArray = [];
   while (results.next()) {
