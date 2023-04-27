@@ -319,6 +319,15 @@ export default {
           .readBookTableFilteringGenre(genreId)
       })
     },
+    // GASを使用し書籍名を指定して書籍テーブルを読み込み、Promise返却
+    readBookTableFilteringTitle (title) {
+      return new Promise((resolve, reject) => {
+        google.script.run // eslint-disable-line no-undef
+          .withSuccessHandler((result) => resolve(result))
+          .withFailureHandler((error) => reject(error))
+          .readBookTableFilteringTitle(title)
+      })
+    },
     // GASを使用し書籍テーブルへ新規登録、Promise返却
     insertNewItem () {
       return new Promise((resolve, reject) => {
@@ -445,10 +454,10 @@ export default {
       this.formTitle = ''
       this.formReview = ''
     },
-    // 書籍を検索（暫定：ジャンル指定の疎通確認）
+    // 書籍を検索（暫定：書籍名指定の疎通確認）
     async searchBook () {
-      const genreId = '04'
-      this.items = await this.readBookTableFilteringGenre(genreId)
+      const title = 'ふくい'
+      this.items = await this.readBookTableFilteringTitle(title)
       console.log(this.items)
     },
     // DBアクセス異常通知
