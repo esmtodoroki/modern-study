@@ -3,8 +3,7 @@ import sample from './functions/sample'
 import { USER_NAME, PASSWORD, URL } from './functions/common/dbParam'
 import readTableSub from './functions/common/readTableSub'
 import readBookTableAll from './functions/readBookTableAll'
-import readBookTableFilteringGenre from './functions/readBookTableFilteringGenre'
-import readBookTableFilteringTitle from './functions/readBookTableFilteringTitle'
+import readBookTableFiltering from './functions/readBookTableFiltering'
 import readGenreTable from './functions/readGenreTable'
 import insertNewBook from './functions/insertNewBook'
 import deleteBook from './functions/deleteBook'
@@ -14,8 +13,7 @@ global.doGet = doGet
 global.sample = sample
 global.readTableSub = readTableSub
 global.readBookTableAll = readBookTableAll
-global.readBookTableFilteringGenre = readBookTableFilteringGenre
-global.readBookTableFilteringTitle = readBookTableFilteringTitle
+global.readBookTableFiltering = readBookTableFiltering
 global.readGenreTable = readGenreTable
 global.insertNewBook = insertNewBook
 global.deleteBook = deleteBook

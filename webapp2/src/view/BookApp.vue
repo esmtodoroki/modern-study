@@ -5,12 +5,20 @@
     </v-row>
     <v-row>
       <v-col cols="3" class="pt-1 pb-0">
-        <v-text-field solo clearable label="書籍名" variant="outlined" width="400"></v-text-field>
+        <v-text-field
+        v-model="searchTitle"
+        solo
+        clearable
+        label="書籍名"
+        variant="outlined"
+        width="400">
+        </v-text-field>
       </v-col>
       <v-col cols="2" class="pt-1 pb-0">
         <v-select
           solo
-          v-bind:items="searchGenreList"
+          v-model="searchGenre"
+          :items="formGenreList"
           label="ジャンル"
           item-text="genreName"
           item-value="genreId"
@@ -242,7 +250,6 @@
 export default {
   data () {
     return {
-      searchGenreList: [],
       headers: [
         { text: 'タイトル', value: 'title', width: '50%' },
         { text: 'ジャンル', value: 'genreName', width: '14%' },
@@ -260,6 +267,8 @@ export default {
       formReview: '',
       selectedBookId: '',
       selectedTitle: '',
+      searchTitle: '',
+      searchGenre: '',
       overlay: false,
       showForm: false,
       dialogDelete: false,
@@ -289,8 +298,7 @@ export default {
         this.notifyFailure()
       })
       this.items = initialGet[0]
-      this.searchGenreList = initialGet[1]
-      this.formGenreList = this.searchGenreList
+      this.formGenreList = initialGet[1]
     },
     // GASを使用しジャンルテーブルを読み込み、Promise返却
     readGenreTable () {
@@ -310,22 +318,13 @@ export default {
           .readBookTableAll()
       })
     },
-    // GASを使用しジャンルを指定して書籍テーブルを読み込み、Promise返却
-    readBookTableFilteringGenre (genreId) {
+    // GASを使用し検索条件を指定して書籍テーブルを読み込み、Promise返却
+    readBookTableFiltering () {
       return new Promise((resolve, reject) => {
         google.script.run // eslint-disable-line no-undef
           .withSuccessHandler((result) => resolve(result))
           .withFailureHandler((error) => reject(error))
-          .readBookTableFilteringGenre(genreId)
-      })
-    },
-    // GASを使用し書籍名を指定して書籍テーブルを読み込み、Promise返却
-    readBookTableFilteringTitle (title) {
-      return new Promise((resolve, reject) => {
-        google.script.run // eslint-disable-line no-undef
-          .withSuccessHandler((result) => resolve(result))
-          .withFailureHandler((error) => reject(error))
-          .readBookTableFilteringTitle(title)
+          .readBookTableFiltering(this.searchTitle, this.searchGenre)
       })
     },
     // GASを使用し書籍テーブルへ新規登録、Promise返却
@@ -454,11 +453,19 @@ export default {
       this.formTitle = ''
       this.formReview = ''
     },
-    // 書籍を検索（暫定：書籍名指定の疎通確認）
+    // 書籍を検索
     async searchBook () {
-      const title = 'ふくい'
-      this.items = await this.readBookTableFilteringTitle(title)
-      console.log(this.items)
+      if (this.searchTitle === '' && this.searchGenre === '') {
+        alert('検索条件が指定されていません')
+      } else {
+        try {
+          this.overlay = true
+          this.items = await this.readBookTableFiltering()
+          this.overlay = false
+        } catch (e) {
+          this.notifyFailure()
+        }
+      }
     },
     // DBアクセス異常通知
     notifyFailure () {
