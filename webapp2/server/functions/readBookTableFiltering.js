@@ -10,6 +10,7 @@ export default function readBookTableFiltering(title, genre) {
       book_table AS A
       LEFT OUTER JOIN genre_table AS B
         ON A.genre_id = B.genre_id
+    WHERE
     ${makeWhere(title, genre)}`;
   const results = readTableSub(sql);
   const dataArray = [];

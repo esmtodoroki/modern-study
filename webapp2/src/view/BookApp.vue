@@ -455,7 +455,7 @@ export default {
     },
     // 書籍を検索
     async searchBook () {
-      if (this.searchTitle === '' && this.searchGenre === '') {
+      if (!this.searchTitle && !this.searchGenre) {
         alert('検索条件が指定されていません')
       } else {
         try {

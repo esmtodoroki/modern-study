@@ -7,7 +7,5 @@ export default function makeWhere(title, genre) {
   if (genre) {
     whereArray.push(`A.genre_id = '${genre}'`)
   }
-  return (whereArray.length === 2) ?
-    `WHERE ${whereArray.join(' AND ')}` :
-    `WHERE ${whereArray}`
+  return `${whereArray.join(' AND ')}`
 }
