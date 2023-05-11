@@ -269,6 +269,7 @@ export default {
       selectedTitle: '',
       searchTitle: '',
       searchGenre: '',
+      isFilteredView: false,
       overlay: false,
       showForm: false,
       dialogDelete: false,
@@ -461,6 +462,23 @@ export default {
         try {
           this.overlay = true
           this.items = await this.readBookTableFiltering()
+          this.overlay = false
+          this.isFilteredView = true
+        } catch (e) {
+          this.notifyFailure()
+        }
+      }
+    },
+    // 検索条件クリア
+    async searchClear () {
+      this.searchTitle = ''
+      this.searchGenre = ''
+      // 検索結果を表示中の場合は全件表示に戻す
+      if (this.isFilteredView) {
+        try {
+          this.overlay = true
+          this.items = await this.readBookTableAll()
+          this.isFilteredView = false
           this.overlay = false
         } catch (e) {
           this.notifyFailure()
