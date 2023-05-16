@@ -1,1 +1,3 @@
 /node_modules
+/webapp/dbAccessParam.js
+/webapp2/server/functions/common/dbParam.js

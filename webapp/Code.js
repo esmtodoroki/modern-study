@@ -1,13 +1,7 @@
+import { USER_NAME, PASSWORD, URL } from './dbAccessParam'
 //カウンター値を保存するスプレッドシートの定義
 const SHEET_ID = '1P6GHIrw11mKkV0xcBEyLfcov9sQGygYouIq5zM2ScbA'
 const SHEET_NAME = 'counter'
-
-//CloudSQL接続情報
-const CONNECTION_NAME = 'esm-gcp-study:us-central1:modern-study'
-const DATABASE_NAME = 'web_counter_esmtodoroki'
-const USER_NAME = 'esm'
-const PASSWORD = 'esm'
-const URL = 'jdbc:google:mysql://' + CONNECTION_NAME + '/' + DATABASE_NAME
 
 function doGet() {
   var template = HtmlService.createTemplateFromFile('index');
