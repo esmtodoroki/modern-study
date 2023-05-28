@@ -25,62 +25,34 @@
       </template>
     </v-data-table>
     <!-- 書籍削除時に表示する確認ダイアログ -->
-    <v-dialog v-model="dialogDelete" max-width="25%">
-      <v-card>
-        <v-card-title>{{ dialogTitle }}</v-card-title>
-        <v-card-actions>
-          <v-btn
-            color="red accent-3"
-            class="mx-auto white--text"
-            @click="deleteItemConfirm"
-          >削除
-          </v-btn>
-          <v-btn
-            color="secondary"
-            class="mx-auto"
-            @click="closeDelete"
-          >取消
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <DialogDelete
+      :dialogDelete="dialogDelete"
+      :selectedTitle="selectedTitle"
+      @deleteItemConfirm='deleteItemConfirm'
+      @closeDelete='closeDelete'
+    />
     <!-- 書籍レビューを表示するダイアログ -->
-    <v-dialog
-      v-model="dialogReview"
-      persistent
-      max-width="35%">
-      <v-card>
-        <v-card-title>{{ reviewTitle }}</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-textarea
-              v-model="selectedReview"
-              solo
-              dense
-              readonly
-            ></v-textarea>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn
-            color="secondary"
-            class="mx-auto"
-            @click="closeReview"
-          >閉じる
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <DialogReview
+      :dialogReview="dialogReview"
+      :selectedTitle="selectedTitle"
+      :selectedReview="selectedReview"
+      @closeReview='closeReview'
+    />
     <!-- DBアクセス時に表示するオーバーレイ -->
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64">
-      </v-progress-circular>
-    </v-overlay>
+    <Overlay :overlay="overlay" />
   </div>
 </template>
 
 <script>
+import DialogDelete from '@/components/DialogDelete.vue'
+import DialogReview from '@/components/DialogReview.vue'
+import Overlay from '@/components/Overlay.vue'
 export default {
+  components: {
+    DialogDelete,
+    DialogReview,
+    Overlay
+  },
   props: {
     items: Array
   },
@@ -102,14 +74,7 @@ export default {
     }
   },
   created () {},
-  computed: {
-    dialogTitle () {
-      return `【${this.selectedTitle}】を削除しますか？`
-    },
-    reviewTitle () {
-      return `【${this.selectedTitle}】のレビュー`
-    }
-  },
+  computed: {},
   methods: {
     // 書籍編集フォーム表示
     openEditForm (item) {

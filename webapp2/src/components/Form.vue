@@ -115,15 +115,16 @@
       </v-card>
     </div>
     <!-- DBアクセス時に表示するオーバーレイ -->
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64">
-      </v-progress-circular>
-    </v-overlay>
+    <Overlay :overlay="overlay" />
   </div>
 </template>
 
 <script>
+import Overlay from '@/components/Overlay.vue'
 export default {
+  components: {
+    Overlay
+  },
   props: {
     showForm: Boolean,
     formGenreList: Array,
@@ -140,7 +141,7 @@ export default {
       formTitle: '',
       selectedFormGenreList: '',
       pickerMenu: false,
-      pickerDate: new Date().toISOString().substr(0, 10),
+      pickerDate: '',
       formPurchaseName: '',
       formReview: '',
       overlay: false
@@ -223,7 +224,6 @@ export default {
     },
     // 入力フォームクローズ
     closeForm () {
-      this.$refs.form.reset()
       this.$emit('closeForm')
     }
   }
@@ -231,21 +231,6 @@ export default {
 </script>
 
 <style>
-#overlay{
-  /* 要素を重ねた時の順番 */
-  z-index:1;
-  /* 画面全体を覆う設定 */
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background-color:rgba(0,0,0,0.5);
-  /* 画面の中央に要素を表示させる設定 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 #formWindow{
   z-index:2;
   width:30%;

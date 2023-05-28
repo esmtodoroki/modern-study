@@ -38,11 +38,8 @@
       @closeForm='closeForm'
       @notifyFailure='notifyFailure'
     />
-    <!-- DBアクセス時に表示するオーバーレイ -->
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64">
-      </v-progress-circular>
-    </v-overlay>
+    <!-- オーバーレイ部 -->
+    <Overlay :overlay="overlay" />
   </div>
 </template>
 
@@ -50,11 +47,13 @@
 import Search from '@/components/Search.vue'
 import List from '@/components/List.vue'
 import Form from '@/components/Form.vue'
+import Overlay from '@/components/Overlay.vue'
 export default {
   components: {
     Search,
     List,
-    Form
+    Form,
+    Overlay
   },
   data () {
     return {
@@ -133,6 +132,12 @@ export default {
     // 書籍新規登録フォーム表示
     openForm () {
       this.isNewBook = true
+      this.selectedBookId = 0
+      this.selectedTitle = ''
+      this.selectedGenreId = ''
+      this.selectedPurchaseDate = new Date().toISOString().substring(0, 10)
+      this.selectedPurchaseName = ''
+      this.selectedReview = ''
       this.showForm = true
     },
     // 書籍編集フォーム表示
