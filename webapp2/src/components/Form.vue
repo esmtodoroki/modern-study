@@ -12,7 +12,7 @@
                 <v-text-field
                   v-model="formTitle"
                   label="タイトル"
-                  :rules="[required]"
+                  :rules="[inputRules.required]"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -96,7 +96,7 @@
                 <v-btn
                   class="mr-4"
                   color="primary"
-                  @click="checkInput"
+                  @click="registrationInputCheck"
                 >
                   登録
                 </v-btn>
@@ -142,8 +142,11 @@ export default {
       pickerDate: '',
       formPurchaseName: '',
       formReview: '',
-      required: value => !!value || '入力必須項目です',
-      overlay: false
+      overlay: false,
+      // 入力チェックルール
+      inputRules: {
+        required: value => !!value || '入力必須項目です'
+      }
     }
   },
   created () {},
@@ -159,7 +162,7 @@ export default {
   },
   methods: {
     // フォームの入力チェック
-    checkInput () {
+    registrationInputCheck () {
       if (this.$refs.form.validate()) {
         this.handlerInsertOrUpdate()
       }
