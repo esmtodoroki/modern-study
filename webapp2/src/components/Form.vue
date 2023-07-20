@@ -12,7 +12,7 @@
                 <v-text-field
                   v-model="formTitle"
                   label="タイトル"
-                  required
+                  :rules="[inputRules.required]"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -24,7 +24,6 @@
                   label="ジャンル"
                   item-text="genreName"
                   item-value="genreId"
-                  required
                 ></v-select>
               </v-col>
             </v-row>
@@ -78,7 +77,6 @@
                 <v-text-field
                   v-model="formPurchaseName"
                   label="購入者"
-                  required
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -98,7 +96,7 @@
                 <v-btn
                   class="mr-4"
                   color="primary"
-                  @click="handlerInsertOrUpdate"
+                  @click="registrationInputCheck"
                 >
                   登録
                 </v-btn>
@@ -144,7 +142,11 @@ export default {
       pickerDate: '',
       formPurchaseName: '',
       formReview: '',
-      overlay: false
+      overlay: false,
+      // 入力チェックルール
+      inputRules: {
+        required: value => !!value || '入力必須項目です'
+      }
     }
   },
   created () {},
@@ -159,6 +161,12 @@ export default {
     }
   },
   methods: {
+    // フォームの入力チェック
+    registrationInputCheck () {
+      if (this.$refs.form.validate()) {
+        this.handlerInsertOrUpdate()
+      }
+    },
     // 新規登録・既存書籍更新の振り分けハンドラー
     handlerInsertOrUpdate () {
       if (this.isNewBook) {
@@ -224,6 +232,7 @@ export default {
     },
     // 入力フォームクローズ
     closeForm () {
+      this.$refs.form.resetValidation()
       this.$emit('closeForm')
     }
   }
